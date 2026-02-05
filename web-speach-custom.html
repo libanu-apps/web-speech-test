@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Speech API - Customizable</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+    
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    
+    section {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+    
+    h3 {
+      color: #555;
+      font-size: 1em;
+      margin-top: 0;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 8px;
+    }
+    
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    label {
+      color: #333;
+      font-weight: 500;
+      flex: 1;
+      font-size: 0.95em;
+    }
+    
+    select, input[type="range"] {
+      padding: 8px 12px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 1em;
+    }
+    
+    select {
+      cursor: pointer;
+      background-color: white;
+      flex: 2;
+    }
+    
+    select:focus, input[type="range"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    input[type="range"] {
+      flex: 2;
+      cursor: pointer;
+    }
+    
+    .slider-value {
+      min-width: 50px;
+      text-align: right;
+      color: #666;
+      font-weight: 600;
+    }
+    
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    #start-recognition {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    #stop-recognition {
+      background: #f44336;
+      color: white;
+    }
+    
+    #speak-text {
+      background: #2196F3;
+      color: white;
+    }
+    
+    #stop-speech {
+      background: #ff9800;
+      color: white;
+    }
+    
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #2196F3;
+    }
+    
+    .status {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .status.show {
+      display: block;
+    }
+    
+    .status.info {
+      background: #e3f2fd;
+      color: #1976d2;
+      border-left: 4px solid #1976d2;
+    }
+    
+    .status.success {
+      background: #e8f5e9;
+      color: #388e3c;
+      border-left: 4px solid #388e3c;
+    }
+    
+    .status.error {
+      background: #ffebee;
+      color: #c62828;
+      border-left: 4px solid #c62828;
+    }
+    
+    .results {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .result-item {
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      border-left: 3px solid #667eea;
+    }
+    
+    .transcript {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .confidence {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    .final {
+      background: #e8f5e9;
+      border-left-color: #4CAF50;
+    }
+    
+    .settings-box {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      
+      header h1 {
+        font-size: 1.8em;
+      }
+      
+      .control-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .slider-value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎤 Web Speech API - Customizable</h1>
+      <p>Advanced Speech Recognition & Text-to-Speech with Full Control</p>
+    </header>
+    
+    <main>
+      <section id="speech-recognition">
+        <h2>🎧 Speech Recognition</h2>
+        
+        <div class="settings-box">
+          <h3>Settings</h3>
+          <div class="control-group">
+            <div class="control-row">
+              <label for="recognition-language">Language:</label>
+              <select id="recognition-language">
+                <option value="en-US">English (US)</option>
+                <option value="en-GB">English (UK)</option>
+                <option value="es-ES">Spanish</option>
+                <option value="fr-FR">French</option>
+                <option value="de-DE">German</option>
+                <option value="it-IT">Italian</option>
+                <option value="ja-JP">Japanese</option>
+                <option value="zh-CN">Chinese (Simplified)</option>
+                <option value="zh-TW">Chinese (Traditional)</option>
+                <option value="ko-KR">Korean</option>
+                <option value="pt-BR">Portuguese (Brazil)</option>
+                <option value="ru-RU">Russian</option>
+                <option value="ar-SA">Arabic</option>
+                <option value="hi-IN">Hindi</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button id="start-recognition">Start Listening</button>
+          <button id="stop-recognition" disabled>Stop Listening</button>
+        </div>
+        
+        <div id="recognition-status" class="status"></div>
+        <div id="recognition-results" class="results"></div>
+      </section>
+      
+      <section id="speech-synthesis">
+        <h2>🔊 Text-to-Speech</h2>
+        
+        <div class="settings-box">
+          <h3>Settings</h3>
+          
+          <div class="control-group">
+            <div class="control-row">
+              <label for="synthesis-language">Language:</label>
+              <select id="synthesis-language">
+                <option value="en-US">English (US)</option>
+                <option value="en-GB">English (UK)</option>
+                <option value="es-ES">Spanish</option>
+                <option value="fr-FR">French</option>
+                <option value="de-DE">German</option>
+                <option value="it-IT">Italian</option>
+                <option value="ja-JP">Japanese</option>
+                <option value="zh-CN">Chinese (Simplified)</option>
+                <option value="zh-TW">Chinese (Traditional)</option>
+                <option value="ko-KR">Korean</option>
+                <option value="pt-BR">Portuguese (Brazil)</option>
+                <option value="ru-RU">Russian</option>
+                <option value="ar-SA">Arabic</option>
+                <option value="hi-IN">Hindi</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <div class="control-row">
+              <label for="volume-slider">Volume:</label>
+              <input type="range" id="volume-slider" min="0" max="100" value="100">
+              <span class="slider-value"><span id="volume-value">100</span>%</span>
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <div class="control-row">
+              <label for="pitch-slider">Pitch:</label>
+              <input type="range" id="pitch-slider" min="0.5" max="2" step="0.1" value="1">
+              <span class="slider-value"><span id="pitch-value">1.0</span></span>
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <div class="control-row">
+              <label for="rate-slider">Speed:</label>
+              <input type="range" id="rate-slider" min="0.5" max="2" step="0.1" value="1">
+              <span class="slider-value"><span id="rate-value">1.0</span>x</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <textarea id="text-input" placeholder="Enter text to speak...">Hello, this is a test of the Web Speech API with customizable settings!</textarea>
+        </div>
+        
+        <div class="controls">
+          <button id="speak-text">Speak</button>
+          <button id="stop-speech" disabled>Stop</button>
+        </div>
+        
+        <div id="synthesis-status" class="status"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="web-speach-custom.js"></script>
+</body>
+</html>
