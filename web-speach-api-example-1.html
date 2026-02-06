@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Speech API – Speech Recognition</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      text-align: center;
+    }
+
+    button {
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:disabled {
+      background: #9e9e9e;
+      cursor: not-allowed;
+    }
+
+    .output-box {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>🎤 Speech Recognition</h1>
+
+    <button id="speechBtn" onclick="startSpeech()">Start Speaking</button>
+
+    <div id="output" class="output-box">
+      Your spoken text will appear here...
+    </div>
+  </div>
+
+  <script>
+    let recognition;
+
+    function startSpeech() {
+      const btn = document.getElementById("speechBtn");
+      const output = document.getElementById("output");
+
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = "en-IN";
+      recognition.interimResults = false;
+
+      // UI state: Listening
+      btn.disabled = true;
+      btn.innerText = "Listening… 🎙️";
+      output.innerText = "Listening, please speak...";
+
+      recognition.start();
+
+      recognition.onresult = function (event) {
+        output.innerText = event.results[0][0].transcript;
+      };
+
+      recognition.onerror = function (error) {
+        console.error("Speech Error:", error);
+        output.innerText = "Error occurred while listening.";
+      };
+
+      recognition.onend = function () {
+        // Reset UI
+        btn.disabled = false;
+        btn.innerText = "Start Speaking";
+      };
+    }
+  </script>
+
+</body>
+</html>

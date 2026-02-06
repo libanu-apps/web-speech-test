@@ -1,50 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Speech App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .links-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        a {
-            display: block;
-            padding: 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        a:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Speech API – Examples</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      padding: 35px 30px;
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .links-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .links-container a {
+      display: block;
+      padding: 14px;
+      background: #4CAF50;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .links-container a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      background: #43a047;
+    }
+
+    .footer-note {
+      margin-top: 25px;
+      font-size: 0.85rem;
+      color: #777;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Web Speech API Examples</h1>
-    
+
+  <div class="card">
+    <h1>🎤 Web Speech API</h1>
+    <p class="subtitle">Speech Recognition & Text-to-Speech Examples</p>
+
     <div class="links-container">
-        <a href="web-speach-api.html" target="_blank">Example 1</a>
-        <a href="web-speach.html" target="_blank">Example 2</a>
-        <a href="web-speach-custom.html" target="_blank">Example 3</a>
+      <a href="web-speach-api-example-1.html" target="_blank">
+        Example 1 – Basic Speech Recognition
+      </a>
+      <a href="web-speach-api-example-2.html" target="_blank">
+        Example 2 – Button States & UX
+      </a>
+      <a href="web-speach-api-example-3.html" target="_blank">
+        Example 3 – Advanced Demo
+      </a>
     </div>
+
+    <div class="footer-note">
+      Works best in Chrome & Edge
+    </div>
+  </div>
+
 </body>
 </html>
