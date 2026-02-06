@@ -13,7 +13,8 @@ class SpeechRecognitionManager {
   initializeRecognition() {
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.language = 'en-US';
+    // this.recognition.lang = 'ml-IN';
+    this.recognition.lang = 'en-US';
 
     this.recognition.onstart = () => {
       this.isListening = true;
@@ -47,6 +48,7 @@ class SpeechRecognitionManager {
   startListening() {
     try {
       this.recognitionResults = [];
+      this.recognition.lang = 'en-US';
       this.recognition.start();
     } catch (error) {
       console.error('Error starting recognition:', error);
@@ -152,7 +154,8 @@ class SpeechSynthesisManager {
     this.currentUtterance.rate = 1; // Speed - 0.5 to 2.0 (default is 1.0)
     this.currentUtterance.pitch = 1; // Pitch - 0.0 to 2.0 (default is 1.0)
     this.currentUtterance.volume = 1; // Volume - 0.0 to 1.0 (default is 1.0)
-    this.currentUtterance.lang = 'en-US'; // Set language
+    // this.currentUtterance.lang = 'ml-IN'; // Set language to Malayalam
+    this.currentUtterance.lang = 'en-US'; // Set language to Malayalam
 
     this.currentUtterance.onstart = () => {
       this.isPlaying = true;

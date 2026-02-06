@@ -14,7 +14,7 @@ class SpeechRecognitionManager {
   initializeRecognition() {
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.language = this.currentLanguage;
+    this.recognition.lang = this.currentLanguage;
 
     this.recognition.onstart = () => {
       this.isListening = true;
@@ -41,7 +41,7 @@ class SpeechRecognitionManager {
     try {
       this.recognitionResults = [];
       this.currentLanguage = document.getElementById('recognition-language').value;
-      this.recognition.language = this.currentLanguage;
+      this.recognition.lang = this.currentLanguage;
       this.recognition.start();
     } catch (error) {
       console.error('Error starting recognition:', error);
@@ -110,7 +110,10 @@ class SpeechRecognitionManager {
       'pt-BR': 'Portuguese (Brazil)',
       'ru-RU': 'Russian',
       'ar-SA': 'Arabic',
-      'hi-IN': 'Hindi'
+      'en-IN': 'English (Indian)',
+      'hi-IN': 'Hindi',
+      'ml-IN': 'Malayalam',
+      'ta-IN': 'Tamil'
     };
     return langNames[lang] || lang;
   }
@@ -153,10 +156,67 @@ class SpeechSynthesisManager {
     this.currentVolume = 1.0;
     this.currentPitch = 1.0;
     this.currentRate = 1.0;
+    this.availableVoices = [];
+    this.currentVoice = null;
+    this.voiceSelectionStrategy = 'language'; // 'language', 'name', or 'custom'
+    this.initializeVoices();
+  }
+
+  initializeVoices() {
+    // Load voices when available
+    if (this.synthesis.onvoiceschanged !== undefined) {
+      this.synthesis.onvoiceschanged = () => {
+        this.availableVoices = this.synthesis.getVoices();
+        this.selectVoiceByLanguage(this.currentLanguage);
+        console.log(`Loaded ${this.availableVoices.length} voices`);
+      };
+    }
+    
+    // Get voices immediately (if already loaded)
+    this.availableVoices = this.synthesis.getVoices();
+    if (this.availableVoices.length > 0) {
+      this.selectVoiceByLanguage(this.currentLanguage);
+    }
+  }
+
+  setVoiceSelectionStrategy(strategy, criteria = null) {
+    this.voiceSelectionStrategy = strategy;
+    
+    if (strategy === 'language') {
+      this.selectVoiceByLanguage(this.currentLanguage);
+    } else if (strategy === 'name' && criteria) {
+      this.selectVoiceByName(criteria);
+    } else if (strategy === 'custom' && criteria) {
+      this.currentVoice = criteria(this.availableVoices);
+    }
+  }
+
+  selectVoiceByLanguage(lang) {
+    // Try exact match first, then fallback to language prefix
+    this.currentVoice = this.availableVoices.find(v => v.lang === lang) ||
+                        this.availableVoices.find(v => v.lang.startsWith(lang.split('-')[0])) ||
+                        this.availableVoices[0];
+  }
+
+  selectVoiceByName(voiceName) {
+    this.currentVoice = this.availableVoices.find(v => v.name === voiceName);
+    if (!this.currentVoice) {
+      console.warn(`Voice "${voiceName}" not found. Using default.`);
+      this.currentVoice = this.availableVoices[0];
+    }
+  }
+
+  getAvailableVoicesByLanguage(lang) {
+    return this.availableVoices.filter(v => v.lang.startsWith(lang.split('-')[0]));
+  }
+
+  getAllVoiceNames() {
+    return this.availableVoices.map(v => ({ name: v.name, lang: v.lang }));
   }
 
   setLanguage(lang) {
     this.currentLanguage = lang;
+    this.selectVoiceByLanguage(lang);
   }
 
   setVolume(volume) {
@@ -185,6 +245,11 @@ class SpeechSynthesisManager {
     this.currentUtterance.pitch = this.currentPitch;
     this.currentUtterance.volume = this.currentVolume;
     this.currentUtterance.lang = this.currentLanguage;
+    
+    // Set voice if available
+    if (this.currentVoice) {
+      this.currentUtterance.voice = this.currentVoice;
+    }
 
     this.currentUtterance.onstart = () => {
       this.isPlaying = true;
@@ -263,6 +328,14 @@ class UIManager {
     // Synthesis Language Change
     document.getElementById('synthesis-language').addEventListener('change', (e) => {
       synthesisManager.setLanguage(e.target.value);
+      this.updateVoiceSelector();
+    });
+
+    // Voice Selector Change
+    document.getElementById('voice-selector').addEventListener('change', (e) => {
+      if (e.target.value) {
+        synthesisManager.selectVoiceByName(e.target.value);
+      }
     });
   }
 
@@ -318,6 +391,25 @@ class UIManager {
       document.getElementById('speak-text').disabled = true;
     }
   }
+
+  updateVoiceSelector() {
+    const voiceSelector = document.getElementById('voice-selector');
+    const currentLang = document.getElementById('synthesis-language').value;
+    
+    // Get voices for the current language
+    const voicesForLang = synthesisManager.getAvailableVoicesByLanguage(currentLang);
+    
+    // Clear existing options except the first one
+    voiceSelector.innerHTML = '<option value="">Default Voice</option>';
+    
+    // Add voices for the selected language
+    voicesForLang.forEach(voice => {
+      const option = document.createElement('option');
+      option.value = voice.name;
+      option.textContent = voice.name;
+      voiceSelector.appendChild(option);
+    });
+  }
 }
 
 // Initialize managers
@@ -328,3 +420,4 @@ const uiManager = new UIManager();
 // Initialize UI
 recognitionManager.updateUI();
 synthesisManager.updateUI();
+uiManager.updateVoiceSelector();

@@ -15,6 +15,7 @@
     function startSpeech() {
       const recognition = new webkitSpeechRecognition();
       recognition.lang = "en-IN";
+      // recognition.lang = "ml-IN";
       recognition.start();
 
       recognition.onresult = function (event) {
